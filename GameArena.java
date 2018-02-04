@@ -43,6 +43,8 @@ public class GameArena
     private List<Object> removeList = new ArrayList<Object>();
     private Map<Ball, javafx.scene.shape.Circle> balls = new HashMap<>();
     private Map<Rectangle, javafx.scene.shape.Rectangle> rectangles = new HashMap<>();
+    private Map<Line, javafx.scene.shape.Line> lines = new HashMap<>();
+    private Map<Text, javafx.scene.text.Text> texts = new HashMap<>();
     private int objectCount;
 
     // Basic button state
@@ -190,6 +192,8 @@ public class GameArena
             removeList.clear();
             rectangles.clear();
             balls.clear();
+            lines.clear();
+            texts.clear();
             objectCount = 0;
             initialised = false;
 
@@ -225,6 +229,25 @@ public class GameArena
 
                 rectangles.remove(r);
             }
+
+            if (o instanceof Line)
+            {
+                Line l = (Line) o;
+                javafx.scene.shape.Line line = lines.get(l);
+                root.getChildren().remove(line);
+
+                lines.remove(l);
+            }
+
+            if (o instanceof Text)
+            {
+                Text t = (Text) o;
+                javafx.scene.text.Text text = texts.get(t);
+                root.getChildren().remove(text);
+
+                texts.remove(t);
+            }
+
         }
 
         removeList.clear();
@@ -246,6 +269,22 @@ public class GameArena
                 javafx.scene.shape.Rectangle rectangle = new javafx.scene.shape.Rectangle(0, 0, r.getWidth(), r.getHeight());
                 root.getChildren().add(rectangle);
                 rectangles.put(r, rectangle);
+            }
+
+            if (o instanceof Line)
+            {
+                Line l = (Line) o;
+                javafx.scene.shape.Line line = new javafx.scene.shape.Line(l.getStartX(), l.getStartY(), l.getEndX(), l.getEndY());
+                root.getChildren().add(line);
+                lines.put(l, line);
+            }
+
+            if (o instanceof Text)
+            {
+                Text t = (Text) o;
+                javafx.scene.text.Text text = new javafx.scene.text.Text(t.getXPosition(), t.getYPosition(), t.getText());
+                root.getChildren().add(text);
+                texts.put(t, text);
             }
         }
 
@@ -271,6 +310,31 @@ public class GameArena
             rectangle.setTranslateX(r.getXPosition() - r.getWidth()/2);
             rectangle.setTranslateY(r.getYPosition() - r.getHeight()/2);
             rectangle.setFill(getColourFromString(r.getColour()));
+        }
+
+        for(Map.Entry<Line, javafx.scene.shape.Line> entry : lines.entrySet())
+        {
+            Line l = entry.getKey();
+            javafx.scene.shape.Line line = entry.getValue();
+
+            line.setStartX(l.getStartX());
+            line.setStartY(l.getStartY());
+            line.setEndX(l.getEndX());
+            line.setEndY(l.getEndY());
+
+            line.setStrokeWidth(l.getWidth());
+            line.setStroke(getColourFromString(l.getColour()));
+        }
+
+        for(Map.Entry<Text, javafx.scene.text.Text> entry : texts.entrySet())
+        {
+            Text t = entry.getKey();
+            javafx.scene.text.Text text = entry.getValue();
+
+            text.setX(t.getXPosition());
+            text.setY(t.getYPosition());
+            text.setFont(javafx.scene.text.Font.font ("Verdana",t.getSize()));
+            text.setFill(getColourFromString(t.getColour()));
         }
 
         rendered = true;
@@ -327,6 +391,96 @@ public class GameArena
 		{
             addList.remove(b);
             removeList.add(b);
+            objectCount--;
+		}
+	}
+
+	/**
+     * Adds a given Line to the GameArena. 
+	 * Once a Line is added, it will automatically appear on the window. 
+	 *
+	 * @param l the Line to add to the GameArena.
+	 */
+	public void addLine(Line l)
+	{
+		synchronized (this)
+		{
+			if (objectCount > MAXIMUM_OBJECTS)
+			{
+				System.out.println("\n\n");
+				System.out.println(" ********************************************************* ");
+				System.out.println(" ***** Only 100000 Objects Supported per Game Arena! ***** ");
+				System.out.println(" ********************************************************* ");
+				System.out.println("\n");
+				System.out.println("-- Joe\n\n");
+
+                System.exit(0);
+			}
+
+            // Add this ball to the draw list. Initially, with a null JavaFX entry, which we'll fill in later to avoid cross-thread operations...
+            removeList.remove(l);
+            addList.add(l);
+            objectCount++;
+		}
+	}
+
+	/**
+	 * Remove a Line from the GameArena. 
+	 * Once a Line is removed, it will no longer appear on the window. 
+	 *
+	 * @param l the line to remove from the GameArena.
+	 */
+	public void removeLine(Line l)
+	{
+		synchronized (this)
+		{
+            addList.remove(l);
+            removeList.add(l);
+            objectCount--;
+		}
+	}
+
+	/**
+     * Adds the given Text to the GameArena. 
+	 * Once the Text is added, it will automatically appear on the window. 
+	 *
+	 * @param t the Text to add to the GameArena.
+	 */
+	public void addText(Text t)
+	{
+		synchronized (this)
+		{
+			if (objectCount > MAXIMUM_OBJECTS)
+			{
+				System.out.println("\n\n");
+				System.out.println(" ********************************************************* ");
+				System.out.println(" ***** Only 100000 Objects Supported per Game Arena! ***** ");
+				System.out.println(" ********************************************************* ");
+				System.out.println("\n");
+				System.out.println("-- Joe\n\n");
+
+                System.exit(0);
+			}
+
+            // Add this ball to the draw list. Initially, with a null JavaFX entry, which we'll fill in later to avoid cross-thread operations...
+            removeList.remove(t);
+            addList.add(t);
+            objectCount++;
+		}
+	}
+
+	/**
+	 * Remove the given Text from the GameArena. 
+	 * Once the Text is removed, it will no longer appear on the window. 
+	 *
+	 * @param t the Text to remove from the GameArena.
+	 */
+	public void removeText(Text t)
+	{
+		synchronized (this)
+		{
+            addList.remove(t);
+            removeList.add(t);
             objectCount--;
 		}
 	}

@@ -1,2 +1,4 @@
 git_instructions.txt
 *.class
+*~
+*.swp
