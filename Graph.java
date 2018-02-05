@@ -5,11 +5,9 @@ public class Graph
 	
 	GameArena arena;
 	
-	public Graph(GameArena arena){
+	public Graph(){
 		nodes = new Node[0];
 		arcs = new Arc[0];
-		
-		this.arena = arena;
 	}
 
 	public void display(){
@@ -33,8 +31,6 @@ public class Graph
 	}
 	
 	public void addNode(Node node){
-		arena.addBall(node.getDrawnNode());
-		
 		int i=0;
 		while(i<nodes.length && nodes[i]!=null){
 			i++;
@@ -54,8 +50,6 @@ public class Graph
 	}
 	
 	public void addArc(Arc arc){
-		//arena.addBall(node.getDrawnNode());
-		
 		int i=0;
 		while(i<arcs.length && arcs[i]!=null){
 			i++;
@@ -73,6 +67,84 @@ public class Graph
 		}
 		arcs[oldArc.length] = arc;
 	}
+	
+	public double calculateDensity(){
+		int weight = nodes.length;
+		int weightSq = weight*weight;
+		int countArcs = arcs.length;
+		
+		return (double)countArcs/(double)weightSq;
+	}
+	
+	//graphical only, simply draws the stored graph on the screen
+	public void drawGraph(GameArena a){
+		arena = a;
+		
+		Line line;
+		Ball[] selfArc;
+		for(int i=0;i<arcs.length;i++){
+			line = arcs[i].getLine();
+			if(line!=null)
+				a.addLine(line);
+			else{
+				selfArc = arcs[i].getSelfArc();
+				a.addBall(selfArc[0]);
+				a.addBall(selfArc[1]);
+			}
+		}
+		
+		for(int i=0;i<nodes.length;i++){
+			a.addBall(nodes[i].getDrawnNode());
+		}
+		
+	}	
+	
+	//graphical only, draws the complementary graph on the screen
+	//DOES NOT store it as part of the graph structure - the graph stored is unchanged
+	public void drawComplementaryGraph(GameArena a){
+		arena = a;
 
+		int weight = nodes.length;
+		int weightSq = weight*weight;
+		int countArcs = arcs.length;
+		
+		Arc[] otherArcs = new Arc[weightSq - countArcs];
+		int otherArcCount = 0;
+		for(int i=0;i<weight;i++){
+			Arc[] outArcs = nodes[i].getOutArcs();
+			for(int j=0;j<weight;j++){
+				boolean found = false;
+				int k=0;
+				while(k<outArcs.length && !found){
+					if(nodes[j].equals(outArcs[k].getEndNode()))
+						found = true;
+					k++;
+				}
+				if(!found){
+					otherArcs[otherArcCount] = new Arc(nodes[i],nodes[j]);
+					otherArcCount++;
+				}
+			}
+		}
+		
+		Line line;
+		Ball[] selfArc;
+		for(int i=0;i<otherArcs.length;i++){
+			line = otherArcs[i].getLine();
+			if(line!=null)
+				a.addLine(line);
+			else{
+				selfArc = otherArcs[i].getSelfArc();
+				a.addBall(selfArc[0]);
+				a.addBall(selfArc[1]);
+			}
+		}
+		
+		
+		for(int i=0;i<nodes.length;i++){
+			a.addBall(nodes[i].getDrawnNode());
+		}	
+		
+	}
 
 }

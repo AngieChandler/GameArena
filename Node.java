@@ -27,6 +27,21 @@ public class Node
 	public String getName(){
 		return name;
 	}
+	public String getColour(){
+		return drawnNode.getColour();
+	}
+	public double getXPosition(){
+		return drawnNode.getXPosition();
+	}
+	public double getYPosition(){
+		return drawnNode.getYPosition();
+	}
+	public double getDiameter(){
+		return drawnNode.getSize();
+	}
+	public Arc[] getOutArcs(){
+		return outArcs;
+	}
 	
 	public void addArc(Arc arc){
 		int i=0;
