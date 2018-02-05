@@ -1,19 +1,13 @@
 public class Graph
 {
-	Node[] nodes;
-	Arc[] arcs;
+	private Node[] nodes;
+	private Arc[] arcs;
 	
-	GameArena arena;
-	
-	Graph[] relatedGraphs;
-	int complementary;
-	int fullGraph;
-	
+	private GameArena arena;
+		
 	public Graph(GameArena arena){
 		nodes = new Node[0];
 		arcs = new Arc[0];
-		
-		relatedGraphs = new Graph[0];
 		
 		this.arena = arena;
 	}
@@ -92,16 +86,13 @@ public class Graph
 			arena.removeBall(nodes[i].getDrawnNode());
 		}
 		for(int i=0;i<arcs.length;i++){
-			if(!arcs[i].isSelfArc)
+			if(!arcs[i].isSelfArc())
 				arena.removeLine(arcs[i].getLine());
 			else{
 				Ball[] selfArc = arcs[i].getSelfArc();
 				arena.removeBall(selfArc[0]);
 				arena.removeBall(selfArc[1]);
 			}
-		}
-		for(int i=0;i<relatedGraphs.length;i++){
-			relatedGraphs[i].resetGraph();
 		}
 	}
 	
@@ -111,7 +102,7 @@ public class Graph
 		resetGraph();
 		Ball[] selfArc;
 		for(int i=0;i<arcs.length;i++){
-			if(!arcs[i].isSelfArc)
+			if(!arcs[i].isSelfArc())
 				arena.addLine(arcs[i].getLine());
 			else{
 				selfArc = arcs[i].getSelfArc();
@@ -127,7 +118,7 @@ public class Graph
 	}	
 	
 	//generates the complementary graph
-	public Graph createComplementaryGraph(){
+	public Graph complement(){
 		Graph comp = new Graph(this.arena);
 
 		int weight = nodes.length;
@@ -157,25 +148,11 @@ public class Graph
 				}
 			}
 		}
-
-		Graph[] oldGraphs = relatedGraphs;
-		
-		relatedGraphs = new Graph[oldGraphs.length+1];
-		for(int i=0;i<oldGraphs.length;i++){
-			relatedGraphs[i] = oldGraphs[i];
-		}
-		complementary = oldGraphs.length;
-		relatedGraphs[complementary] = comp;
-
 		return comp;
 	}
 	
-	public Graph getComplementaryGraph(){
-		return relatedGraphs[complementary];
-	}
-	
 	//generates the full graph
-	public Graph createFullGraph(){
+	public Graph fullyConnect(){
 		Graph full = new Graph(arena);
 
 		int weight = nodes.length;
@@ -213,15 +190,6 @@ public class Graph
 			}
 		}
 		
-		Graph[] oldGraphs = relatedGraphs;
-		
-		relatedGraphs = new Graph[oldGraphs.length+1];
-		for(int i=0;i<oldGraphs.length;i++){
-			relatedGraphs[i] = oldGraphs[i];
-		}
-		fullGraph = oldGraphs.length;
-		relatedGraphs[fullGraph] = full;
-
 		return full;
 
 	}

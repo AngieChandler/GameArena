@@ -3,7 +3,6 @@ public class Arc
 	private Node startNode;
 	private Node endNode;
 
-	public boolean isSelfArc;
 	private Line line;
 	private Ball[] selfArc = new Ball[2];
 	
@@ -18,14 +17,9 @@ public class Arc
 		
 		double[] start = {startNode.getXPosition(),startNode.getYPosition()};
 		double[] end = {endNode.getXPosition(),endNode.getYPosition()};
+			
 		
-		if(!startNode.equals(endNode))
-			isSelfArc = false;
-		else
-			isSelfArc = true;
-		
-		
-		if(!isSelfArc)
+		if(!isSelfArc())
 		{
 			if(start[X]<end[X]){
 				start[Y]+=2;
@@ -59,6 +53,9 @@ public class Arc
 	}
 	public Ball[] getSelfArc(){
 		return selfArc;
+	}
+	public boolean isSelfArc(){
+		return startNode.equals(endNode);
 	}
 	
 	public void display(){

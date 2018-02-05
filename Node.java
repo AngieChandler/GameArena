@@ -1,8 +1,8 @@
 public class Node
 {
-	Arc[] outArcs;
-	Ball drawnNode;
-	String name;
+	private Arc[] outArcs;
+	private Ball drawnNode;
+	private String name;
 
 	public Node(int x,int y, int size, String colour, String name)
 	{

@@ -45,7 +45,7 @@ public class Driver
 		
 		//generate the complementary graph in a separate graph class and draw that on the game arena.
 		//also print out the nodes and arcs (as text) and the density.
-		Graph comp = g.createComplementaryGraph();
+		Graph comp = g.complement();
 		comp.drawGraph();
 		arena.update();
 		comp.display();
@@ -61,9 +61,10 @@ public class Driver
 
 		//clear screen
 		g.resetGraph();
+		comp.resetGraph();
 		arena.update();
 		
-		Graph full = g.createFullGraph();
+		Graph full = g.fullyConnect();
 		full.drawGraph();
 		System.out.println("density = "+full.calculateDensity());
 		
@@ -77,10 +78,11 @@ public class Driver
 		
 		//clear screen
 		g.resetGraph();
+		full.resetGraph();
 		arena.update();
 
 		//the complementary graph of the complementary graph!
-		Graph compcomp = comp.createComplementaryGraph();
+		Graph compcomp = comp.complement();
 		compcomp.display();
 		compcomp.drawGraph();
 		System.out.println("compcomp density = "+compcomp.calculateDensity());
