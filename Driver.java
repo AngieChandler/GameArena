@@ -92,6 +92,7 @@ public class Driver
 		
 		//other things we could add :)
 		//connectivity
+		//subgraphs - remove specific nodes etc
 		//paths..
 		//diameter
 		//depth first search - using a stack
