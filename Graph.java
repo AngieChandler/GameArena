@@ -1,17 +1,28 @@
+/** Graph class, contains an array of Nodes and an Array of Arcs. Performs operations on the graph.
+*/
 public class Graph
 {
+	//the arrays of nodes and arcs that form this graph
 	private Node[] nodes;
 	private Arc[] arcs;
 	
+	//the GameArena for drawing on
 	private GameArena arena;
-		
-	public Graph(GameArena arena){
+
+	/** constructor - initialise arrays to empty (so that there are never any empty values)
+	* will increase size of arrays as we go on.
+	* also, store the GameArena reference for later.
+	* @param a GameArena on which this graph will be drawn
+	*/
+	public Graph(GameArena a){
 		nodes = new Node[0];
 		arcs = new Arc[0];
 		
-		this.arena = arena;
+		arena = a;
 	}
 
+	/** display details (textual) of the graph
+	*/
 	public void display(){
 		System.out.println("*****************************");
 		System.out.println("Graph");
@@ -23,7 +34,11 @@ public class Graph
 		}
 		System.out.println("*****************************");
 	}
-	
+
+	/** find a node from within the graph based on the node's name
+	* @param name the name of the node
+	* @return the node with the matching name
+	*/
 	public Node getNode(String name){
 		for(int i=0;i<nodes.length;i++){
 			if(nodes[i].getName().equals(name))
@@ -31,45 +46,36 @@ public class Graph
 		}
 		return null;
 	}
-	
-	public void addNode(Node node){
-		int i=0;
-		while(i<nodes.length && nodes[i]!=null){
-			i++;
-		}
-		if(i<nodes.length){
-			nodes[i] = node;
-			return;
-		}
-		
+
+	/** add a node to the graph, also increases the size of the node array to accommodate the new node
+	* @param node the Node to be added to the graph
+	*/
+	public void addNode(Node node){		
 		Node[] oldNode = nodes;
 		
 		nodes = new Node[oldNode.length+1];
-		for(i=0;i<oldNode.length;i++){
+		for(int i=0;i<oldNode.length;i++){
 			nodes[i] = oldNode[i];
 		}
 		nodes[oldNode.length] = node;
 	}
 	
+	/** add an arc to the graph, also increases the size of the arc array to accommodate the new arc
+	* @param arc the Arc to be added to the graph
+	*/
 	public void addArc(Arc arc){
-		int i=0;
-		while(i<arcs.length && arcs[i]!=null){
-			i++;
-		}
-		if(i<arcs.length){
-			arcs[i] = arc;
-			return;
-		}
-		
 		Arc[] oldArc = arcs;
 		
 		arcs = new Arc[oldArc.length+1];
-		for(i=0;i<oldArc.length;i++){
+		for(int i=0;i<oldArc.length;i++){
 			arcs[i] = oldArc[i];
 		}
 		arcs[oldArc.length] = arc;
 	}
 	
+	/** calculate the graph's density
+	* @return density as a double
+	*/
 	public double calculateDensity(){
 		int weight = nodes.length;
 		int weightSq = weight*weight;
@@ -80,7 +86,8 @@ public class Graph
 	
 
 	
-	//reset graph drawing
+	/** reset graph drawing, removes all drawing objects from the GameArena
+	*/
 	public void resetGraph(){
 		for(int i=0;i<nodes.length;i++){
 			arena.removeBall(nodes[i].getDrawnNode());
@@ -97,7 +104,8 @@ public class Graph
 	}
 	
 	
-	//graphical only, simply draws the stored graph on the screen
+	/** graphical only, draws the stored graph on the GameArena
+	*/
 	public void drawGraph(){
 		resetGraph();
 		Ball[] selfArc;
@@ -117,19 +125,22 @@ public class Graph
 		
 	}	
 	
-	//generates the complementary graph
+	/** generates the complementary graph
+	* @return the complementary graph
+	*/
 	public Graph complement(){
 		Graph comp = new Graph(this.arena);
 
 		int weight = nodes.length;
-		int weightSq = weight*weight;
-		int countArcs = arcs.length;
 
+		//add current nodes to separate graph
 		for(int i=0;i<nodes.length;i++){
 			Node newNode = new Node((int)nodes[i].getXPosition(),(int)nodes[i].getYPosition(),(int)nodes[i].getDiameter(),nodes[i].getColour(),nodes[i].getName());
 			comp.addNode(newNode);
 		}	
 
+		//work out which arcs we have, and therefore the ones that are missing
+		//add the missing arcs to the other graph
 		Arc newArc;
 		for(int i=0;i<weight;i++){
 			Arc[] outArcs = nodes[i].getOutArcs();
@@ -151,18 +162,19 @@ public class Graph
 		return comp;
 	}
 	
-	//generates the full graph
+	/** generates the full graph for these nodes
+	* @return the fully connected graph 
+	*/
 	public Graph fullyConnect(){
 		Graph full = new Graph(arena);
 
 		int weight = nodes.length;
-		int weightSq = weight*weight;
-		int countArcs = arcs.length;
 
 		Arc newArc;
 		Node newNode;
 
-		for(int i=0;i<nodes.length;i++){
+		//add current nodes and arcs (to a separate graph)
+		for(int i=0;i<weight;i++){
 			newNode = new Node((int)nodes[i].getXPosition(),(int)nodes[i].getYPosition(),(int)nodes[i].getDiameter(),nodes[i].getColour(),nodes[i].getName());
 			full.addNode(newNode);
 		}	
@@ -170,8 +182,8 @@ public class Graph
 			newArc = new Arc(full.getNode(arcs[i].getStartNode().getName()),full.getNode(arcs[i].getEndNode().getName()));
 			full.addArc(newArc);
 		}
-		
-		
+			
+		//work out which arcs are missing and add those
 		for(int i=0;i<weight;i++){
 			Arc[] outArcs = nodes[i].getOutArcs();
 			for(int j=0;j<weight;j++){
