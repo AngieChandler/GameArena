@@ -5,9 +5,17 @@ public class Graph
 	
 	GameArena arena;
 	
-	public Graph(){
+	Graph[] relatedGraphs;
+	int complementary;
+	int fullGraph;
+	
+	public Graph(GameArena arena){
 		nodes = new Node[0];
 		arcs = new Arc[0];
+		
+		relatedGraphs = new Graph[0];
+		
+		this.arena = arena;
 	}
 
 	public void display(){
@@ -76,75 +84,146 @@ public class Graph
 		return (double)countArcs/(double)weightSq;
 	}
 	
+
+	
+	//reset graph drawing
+	public void resetGraph(){
+		for(int i=0;i<nodes.length;i++){
+			arena.removeBall(nodes[i].getDrawnNode());
+		}
+		for(int i=0;i<arcs.length;i++){
+			if(!arcs[i].isSelfArc)
+				arena.removeLine(arcs[i].getLine());
+			else{
+				Ball[] selfArc = arcs[i].getSelfArc();
+				arena.removeBall(selfArc[0]);
+				arena.removeBall(selfArc[1]);
+			}
+		}
+		for(int i=0;i<relatedGraphs.length;i++){
+			relatedGraphs[i].resetGraph();
+		}
+	}
+	
+	
 	//graphical only, simply draws the stored graph on the screen
-	public void drawGraph(GameArena a){
-		arena = a;
-		
-		Line line;
+	public void drawGraph(){
+		resetGraph();
 		Ball[] selfArc;
 		for(int i=0;i<arcs.length;i++){
-			line = arcs[i].getLine();
-			if(line!=null)
-				a.addLine(line);
+			if(!arcs[i].isSelfArc)
+				arena.addLine(arcs[i].getLine());
 			else{
 				selfArc = arcs[i].getSelfArc();
-				a.addBall(selfArc[0]);
-				a.addBall(selfArc[1]);
+				arena.addBall(selfArc[0]);
+				arena.addBall(selfArc[1]);
 			}
 		}
 		
 		for(int i=0;i<nodes.length;i++){
-			a.addBall(nodes[i].getDrawnNode());
+			arena.addBall(nodes[i].getDrawnNode());
 		}
 		
 	}	
 	
-	//graphical only, draws the complementary graph on the screen
-	//DOES NOT store it as part of the graph structure - the graph stored is unchanged
-	public void drawComplementaryGraph(GameArena a){
-		arena = a;
+	//generates the complementary graph
+	public Graph createComplementaryGraph(){
+		Graph comp = new Graph(this.arena);
 
 		int weight = nodes.length;
 		int weightSq = weight*weight;
 		int countArcs = arcs.length;
-		
-		Arc[] otherArcs = new Arc[weightSq - countArcs];
-		int otherArcCount = 0;
+
+		for(int i=0;i<nodes.length;i++){
+			Node newNode = new Node((int)nodes[i].getXPosition(),(int)nodes[i].getYPosition(),(int)nodes[i].getDiameter(),nodes[i].getColour(),nodes[i].getName());
+			comp.addNode(newNode);
+		}	
+
+		Arc newArc;
 		for(int i=0;i<weight;i++){
 			Arc[] outArcs = nodes[i].getOutArcs();
 			for(int j=0;j<weight;j++){
 				boolean found = false;
 				int k=0;
 				while(k<outArcs.length && !found){
-					if(nodes[j].equals(outArcs[k].getEndNode()))
+					if(nodes[j].equals(outArcs[k].getEndNode())){
 						found = true;
+					}
 					k++;
 				}
 				if(!found){
-					otherArcs[otherArcCount] = new Arc(nodes[i],nodes[j]);
-					otherArcCount++;
+					newArc = new Arc(comp.getNode(nodes[i].getName()),comp.getNode(nodes[j].getName()));
+					comp.addArc(newArc);
+				}
+			}
+		}
+
+		Graph[] oldGraphs = relatedGraphs;
+		
+		relatedGraphs = new Graph[oldGraphs.length+1];
+		for(int i=0;i<oldGraphs.length;i++){
+			relatedGraphs[i] = oldGraphs[i];
+		}
+		complementary = oldGraphs.length;
+		relatedGraphs[complementary] = comp;
+
+		return comp;
+	}
+	
+	public Graph getComplementaryGraph(){
+		return relatedGraphs[complementary];
+	}
+	
+	//generates the full graph
+	public Graph createFullGraph(){
+		Graph full = new Graph(arena);
+
+		int weight = nodes.length;
+		int weightSq = weight*weight;
+		int countArcs = arcs.length;
+
+		Arc newArc;
+		Node newNode;
+
+		for(int i=0;i<nodes.length;i++){
+			newNode = new Node((int)nodes[i].getXPosition(),(int)nodes[i].getYPosition(),(int)nodes[i].getDiameter(),nodes[i].getColour(),nodes[i].getName());
+			full.addNode(newNode);
+		}	
+		for(int i=0;i<arcs.length;i++){
+			newArc = new Arc(full.getNode(arcs[i].getStartNode().getName()),full.getNode(arcs[i].getEndNode().getName()));
+			full.addArc(newArc);
+		}
+		
+		
+		for(int i=0;i<weight;i++){
+			Arc[] outArcs = nodes[i].getOutArcs();
+			for(int j=0;j<weight;j++){
+				boolean found = false;
+				int k=0;
+				while(k<outArcs.length && !found){
+					if(nodes[j].equals(outArcs[k].getEndNode())){
+						found = true;
+					}
+					k++;
+				}
+				if(!found){
+					newArc = new Arc(full.getNode(nodes[i].getName()),full.getNode(nodes[j].getName()));
+					full.addArc(newArc); 
 				}
 			}
 		}
 		
-		Line line;
-		Ball[] selfArc;
-		for(int i=0;i<otherArcs.length;i++){
-			line = otherArcs[i].getLine();
-			if(line!=null)
-				a.addLine(line);
-			else{
-				selfArc = otherArcs[i].getSelfArc();
-				a.addBall(selfArc[0]);
-				a.addBall(selfArc[1]);
-			}
+		Graph[] oldGraphs = relatedGraphs;
+		
+		relatedGraphs = new Graph[oldGraphs.length+1];
+		for(int i=0;i<oldGraphs.length;i++){
+			relatedGraphs[i] = oldGraphs[i];
 		}
-		
-		
-		for(int i=0;i<nodes.length;i++){
-			a.addBall(nodes[i].getDrawnNode());
-		}	
-		
+		fullGraph = oldGraphs.length;
+		relatedGraphs[fullGraph] = full;
+
+		return full;
+
 	}
 
 }
