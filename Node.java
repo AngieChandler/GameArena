@@ -6,8 +6,9 @@ public class Node
 	private Arc[] outArcs;
 	private String name;
 
-	//the representation of the node in the GameArena
+	//the representation of the node in the GameArena, and its label
 	private Ball drawnNode;
+	private Text label;
 
 	/** constructor - initialise node - including making the instance of Ball to be used on the GameArena
 	* @param x int x position
@@ -20,6 +21,8 @@ public class Node
 	{
 		drawnNode = new Ball(x,y,size,colour);
 		name = n;
+		double textChange = (double)size/4.0;
+		label = new Text(n,x-textChange,y+textChange,size,"WHITE");
 		
 		outArcs = new Arc[0];
 	}
@@ -79,6 +82,14 @@ public class Node
 	public Arc[] getOutArcs(){
 		return outArcs;
 	}
+	/** get method
+	* @return the label of this node
+	*/
+	public Text getLabel(){
+		return label;
+	}
+	
+	
 
 	/** add an arc to the node's outArc array
 	* @param arc the new Arc

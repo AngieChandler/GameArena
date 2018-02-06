@@ -91,6 +91,7 @@ public class Graph
 	public void resetGraph(){
 		for(int i=0;i<nodes.length;i++){
 			arena.removeBall(nodes[i].getDrawnNode());
+			arena.removeText(nodes[i].getLabel());
 		}
 		for(int i=0;i<arcs.length;i++){
 			if(!arcs[i].isSelfArc())
@@ -121,6 +122,7 @@ public class Graph
 		
 		for(int i=0;i<nodes.length;i++){
 			arena.addBall(nodes[i].getDrawnNode());
+			arena.addText(nodes[i].getLabel());
 		}
 		
 	}	
