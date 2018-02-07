@@ -127,6 +127,11 @@ public class Graph
 		
 	}	
 	
+	
+	
+	/******************************************************************************************************************************/
+	/* graph manipulations */
+	
 	/** generates the complementary graph
 	* @return the complementary graph
 	*/
@@ -206,6 +211,122 @@ public class Graph
 		
 		return full;
 
+	}
+	
+	/******************************************************************************************************************************/
+	/* traversals */
+	
+	public Node[] spanningTreeBegin(Node startNode){
+		//set up
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+
+		Stack nodeStack = new Stack();
+		
+		nodeStack = spanningTree(startNode,nodeStack);
+		
+		int size = nodeStack.getSize();
+		
+		Node[] order = new Node[size];
+		for(int i=size-1;i>=0;i--){
+			order[i] = nodeStack.pop().getNode();
+		}
+		
+		return order;
+	}
+		
+	private Stack spanningTree(Node startNode,Stack stack)
+	{
+		stack.push(new Element(startNode));
+		startNode.setVisited();
+		Arc[] outArcs = startNode.getOutArcs();
+		for(int i=0;i<outArcs.length;i++){
+			if(!outArcs[i].getEndNode().isVisited())	
+				spanningTree(outArcs[i].getEndNode(),stack);
+			
+		}
+		return stack;
+		
+	}
+
+	
+	public Node[] depthFirstBegin(Node startNode,Node endNode){
+		//set up
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+
+		Stack nodeStack = new Stack();
+		
+		nodeStack = depthFirstTraversal(startNode,endNode,nodeStack);
+		
+		int size = nodeStack.getSize();
+		
+		Node[] order = new Node[size+1];
+		order[size] = endNode;
+		for(int i=size-1;i>=0;i--){
+			order[i] = nodeStack.pop().getNode();
+		}
+		
+		return order;
+	}
+		
+	private Stack depthFirstTraversal(Node startNode,Node endNode,Stack stack)
+	{
+		if(startNode.equals(endNode))
+			return stack;
+		
+		stack.push(new Element(startNode));
+		startNode.setVisited();
+		Arc[] outArcs = startNode.getOutArcs();
+		for(int i=0;i<outArcs.length;i++){
+			if(!outArcs[i].getEndNode().isVisited())	
+				depthFirstTraversal(outArcs[i].getEndNode(),endNode,stack);
+			
+		}
+		return stack;
+		
+	}
+	
+	
+	public Node[] breadthFirstTraversal(Node startNode)
+	{
+		//set up
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+
+		Queue result = new Queue();
+		Queue queue = new Queue();
+		Node current;
+		
+		startNode.setVisited();
+		queue.add(new Element(startNode));
+		result.add(new Element(startNode));
+		
+		while(!queue.isEmpty()){
+			current = queue.remove().getNode();
+			
+			Arc[] outArcs = current.getOutArcs();
+			for(int i=0;i<outArcs.length;i++){
+				if(!outArcs[i].getEndNode().isVisited())
+				{
+					outArcs[i].getEndNode().setVisited();
+					queue.add(new Element(outArcs[i].getEndNode()));
+					result.add(new Element(outArcs[i].getEndNode()));
+
+				}
+			}					
+			
+		}
+
+		Node[] order = new Node[result.getSize()];
+		for(int i=0;i<order.length;i++){
+			order[i] = result.remove().getNode();
+		}
+	
+		return order;
 	}
 
 }

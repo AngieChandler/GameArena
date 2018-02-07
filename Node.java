@@ -9,6 +9,7 @@ public class Node
 	//the representation of the node in the GameArena, and its label
 	private Ball drawnNode;
 	private Text label;
+	private boolean visited = false;
 
 	/** constructor - initialise node - including making the instance of Ball to be used on the GameArena
 	* @param x int x position
@@ -88,7 +89,15 @@ public class Node
 	public Text getLabel(){
 		return label;
 	}
-	
+	public void setVisited(){
+		visited = true;
+	}
+	public void resetVisited(){
+		visited = false;
+	}
+	public boolean isVisited(){
+		return visited;
+	}
 	
 
 	/** add an arc to the node's outArc array
