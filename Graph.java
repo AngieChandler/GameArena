@@ -328,5 +328,17 @@ public class Graph
 	
 		return order;
 	}
+	
+	public boolean stronglyConnected(){
+		Node[] result;
+			
+		for(int i=0;i<nodes.length;i++){
+			result = spanningTreeBegin(nodes[i]);
+			if(result.length < nodes.length)
+				return false;
+		}
+		return true;
+	}
+
 
 }

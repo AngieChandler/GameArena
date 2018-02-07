@@ -6,6 +6,7 @@ public class Arc
 	//the nodes at each end of this arc
 	private Node startNode;
 	private Node endNode;
+	private int weight = 1;
 
 	//the two possible representations of this arc on the GameArena
 	private Line line;
@@ -27,6 +28,24 @@ public class Arc
 		//add this arc as an outgoing arc for the start node
 		startNode.addArc(this);	
 
+		makeArc();
+
+	}
+	
+	public Arc(Node startNode, Node endNode, int weight){
+		this.startNode = startNode;
+		this.endNode = endNode;
+		this.weight = weight;
+
+		//add this arc as an outgoing arc for the start node
+		startNode.addArc(this);	
+		
+		makeArc();
+	}
+
+
+	private void makeArc()
+	{
 		//make sure arcs in different directions are in slightly different places
 		double[] start = {startNode.getXPosition(),startNode.getYPosition()};
 		double[] end = {endNode.getXPosition(),endNode.getYPosition()};
@@ -51,6 +70,7 @@ public class Arc
 			selfArc[1] = new Ball(start[X]+diameter-4,start[Y]+diameter-4,diameter,"BLACK");
 		}
 	}
+
 	
 	/** get method
 	* @return start node
