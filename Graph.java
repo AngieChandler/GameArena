@@ -8,6 +8,10 @@ public class Graph
 	
 	//the GameArena for drawing on
 	private GameArena arena;
+	
+	//used for building alternative graphs and showing traversals
+	private Graph tree;
+	private Ball traverse;
 
 	/** constructor - initialise arrays to empty (so that there are never any empty values)
 	* will increase size of arrays as we go on.
@@ -45,6 +49,14 @@ public class Graph
 				return nodes[i];
 		}
 		return null;
+	}
+	
+	public Node[] getNodes(){
+		return nodes;
+	}
+	
+	public Arc[] getArcs(){
+		return arcs;
 	}
 
 	/** add a node to the graph, also increases the size of the node array to accommodate the new node
@@ -340,5 +352,231 @@ public class Graph
 		return true;
 	}
 
+	public Node[] dijkstra(Node startNode, Node endNode)
+	{
+		Node[] tree = new Node[nodes.length];
+		Node[] fringe = new Node[nodes.length];
+		
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+		
+		int treeSize = 0;
+		int fringeSize = 0;
+		
+		tree[0] = startNode;
+		treeSize++;
+		
+		boolean inFringe = false;
+		Arc[] outArcs;
+		boolean endInTree = false;
+		int k=0;
+		
+		while(!endInTree){
+			//(re)generate fringe using new element of tree
+			int i = treeSize-1;
+			outArcs = tree[i].getOutArcs();
+			for(int j=0;j<outArcs.length;j++){
+				inFringe = false;
+				k=0;
+				if(!outArcs[j].getEndNode().isVisited()){
+					while(!inFringe && k<fringeSize)
+					{	
+						if(fringe[k].getName().equals(outArcs[j].getEndNode().getName())){
+							inFringe = true;
+							if(fringe[k].getDistance()>(outArcs[j].getWeight()+tree[i].getDistance()))
+								fringe[k].setDistance(outArcs[j].getWeight());
+						}
+						k++;	
+					}
+					if(!inFringe)
+					{
+						fringe[fringeSize] = outArcs[j].getEndNode();
+						fringe[fringeSize].setDistance(outArcs[j].getWeight()+tree[i].getDistance());
+						fringeSize++;
+					}
+				}
+			
+				//choose one from fringe
+				int position = 0;
+				int distance = fringe[position].getDistance();
+				for(int l=1;l<fringeSize-1;l++){
+					if(fringe[l].getDistance()<distance){
+						position = l;
+						distance = fringe[l].getDistance();
+					}
+				}
+				tree[treeSize] = fringe[position];
+				tree[treeSize].setVisited();
+				treeSize++;
+				fringe[position] = fringe[fringeSize-1];
+				fringeSize--;			
+			}
+			
+			//check end not in tree
+			if(tree[treeSize-1].getName().equals(endNode.getName()))
+				endInTree = true;
+		}
+		
+		return tree;
+	}
+/**********************************************************************************************************************************/
+/*** traversals with drawing *****************/
+
+	public Graph spanningTreeDraw(Node startNode){
+		//set up
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+
+		tree = new Graph(arena);
+		Stack nodeStack = new Stack();
+
+		tree.addNode(startNode);		
+		nodeStack = spanningTreeDrawing(startNode,nodeStack);
+		
+		int size = nodeStack.getSize();
+		
+		Node[] order = new Node[size];
+		for(int i=size-1;i>=0;i--){
+			order[i] = nodeStack.pop().getNode();
+		}
+		
+		return tree;
+	}
+		
+	private Stack spanningTreeDrawing(Node startNode,Stack stack)
+	{
+		stack.push(new Element(startNode));
+		startNode.setVisited();
+		Arc[] outArcs = startNode.getOutArcs();
+		for(int i=0;i<outArcs.length;i++){
+			if(!outArcs[i].getEndNode().isVisited()){	
+				tree.addNode(outArcs[i].getEndNode());
+				tree.addArc(outArcs[i]);
+				spanningTreeDrawing(outArcs[i].getEndNode(),stack);
+			}			
+		}
+		return stack;
+		
+	}
+
+	private void graphWait(int length){
+		try{
+			Thread.sleep(length);
+		}
+		catch(InterruptedException e){}	
+	}
+	
+	
+	public Node[] depthFirstDraw(Node startNode,Node endNode){
+		//set up
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+		
+		//ball to mark the progress of search
+		traverse = new Ball(startNode.getXPosition(),startNode.getYPosition(),20,"WHITE");
+		arena.addBall(traverse);
+		arena.update();
+	
+		Stack nodeStack = new Stack();
+		
+		nodeStack = depthFirstTravDraw(startNode,endNode,nodeStack);
+		
+		int size = nodeStack.getSize();
+		
+		Node[] order = new Node[size+1];
+		order[size] = endNode;
+		for(int i=size-1;i>=0;i--){
+			order[i] = nodeStack.pop().getNode();
+		}
+		
+		//remove visualisation
+		arena.removeBall(traverse);
+		
+		return order;
+	}
+		
+	private Stack depthFirstTravDraw(Node startNode,Node endNode,Stack stack)
+	{
+		//change view and give us time to see it
+		traverse.setXPosition(startNode.getXPosition());
+		traverse.setYPosition(startNode.getYPosition());
+		arena.update();
+		graphWait(5000);
+
+		if(startNode.equals(endNode))
+			return stack;
+		
+		stack.push(new Element(startNode));
+		startNode.setVisited();
+		
+		
+		Arc[] outArcs = startNode.getOutArcs();
+		for(int i=0;i<outArcs.length;i++){
+			if(!outArcs[i].getEndNode().isVisited())	
+				depthFirstTravDraw(outArcs[i].getEndNode(),endNode,stack);
+			
+		}
+		return stack;
+		
+	}
+	
+	
+	public Node[] breadthFirstDraw(Node startNode)
+	{
+		//set up
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+
+		//ball to mark the progress of search
+		traverse = new Ball(startNode.getXPosition(),startNode.getYPosition(),20,"WHITE");
+		arena.addBall(traverse);
+		arena.update();
+
+		
+		Queue result = new Queue();
+		Queue queue = new Queue();
+		Node current;
+		
+		startNode.setVisited();
+		queue.add(new Element(startNode));
+		result.add(new Element(startNode));
+		
+		while(!queue.isEmpty()){
+			current = queue.remove().getNode();
+			
+			Arc[] outArcs = current.getOutArcs();
+			for(int i=0;i<outArcs.length;i++){
+				if(!outArcs[i].getEndNode().isVisited())
+				{
+					outArcs[i].getEndNode().setVisited();
+					queue.add(new Element(outArcs[i].getEndNode()));
+					result.add(new Element(outArcs[i].getEndNode()));
+
+					//change view and give us time to see it
+					traverse.setXPosition(outArcs[i].getEndNode().getXPosition());
+					traverse.setYPosition(outArcs[i].getEndNode().getYPosition());
+					arena.update();
+					graphWait(5000);
+				}
+			}					
+			
+		}
+
+		Node[] order = new Node[result.getSize()];
+		for(int i=0;i<order.length;i++){
+			order[i] = result.remove().getNode();
+		}
+
+		//remove visualisation
+		arena.removeBall(traverse);
+		arena.update();
+		
+		return order;
+	}
+	
 
 }

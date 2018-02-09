@@ -1,9 +1,9 @@
-public class LectureTraversal
+public class LectureDraw
 {
 
-	public LectureTraversal(){
+	public LectureDraw(){
 	
-			//create GameArena - to draw on
+		//create GameArena - to draw on
 		GameArena arena = new GameArena(1000,800);
 		
 		//create the graph class itself, currently empty, give it access to the GameArena (drawing pad!)
@@ -49,30 +49,54 @@ public class LectureTraversal
 		g.drawGraph();
 		arena.update();
 		g.display();
-
-		//calculate the density
-		System.out.println("density = "+g.calculateDensity());
-
-		System.out.println("Traversal: 0 to 5");
-		Node[] depthTraversal = g.depthFirstBegin(g.getNode("0"),g.getNode("5"));
+		
+		Node[] depthTraversal = g.depthFirstDraw(g.getNode("0"),g.getNode("5"));
 		for(int i=0;i<depthTraversal.length-1;i++){
 			System.out.print(depthTraversal[i].getName()+", ");
 		}
 		System.out.println(depthTraversal[depthTraversal.length-1].getName()+"\n");
 
 		System.out.println();
-		
-		System.out.println("Spanning tree");
-		Node[] tree = g.spanningTreeBegin(g.getNode("0"));
-		for(int i=0;i<tree.length-1;i++){
-			System.out.print(tree[i].getName()+", ");
+
+		boolean space = false;
+		while(!space){
+			if(arena.spacePressed())
+				space = true;
+			arena.update();
 		}
-		System.out.println(tree[tree.length-1].getName()+"\n");
+
+		g.resetGraph();
 		
-		System.out.println();
+		Graph temp = g.spanningTreeDraw(g.getNode("0"));
+
+		Graph tree = new Graph(arena);
+		
+		Node[] nodes = temp.getNodes();
+		for(int i=0;i<nodes.length;i++){
+			tree.addNode(nodes[i]);
+		}
+		
+		Arc[] arcs = temp.getArcs();
+		for(int i=0;i<arcs.length;i++){
+			tree.addArc(arcs[i]);
+		}
+		
+		tree.drawGraph();
+		arena.update();
+
+		boolean left = false;
+		while(!left){
+			if(arena.leftPressed())
+				left = true;
+			arena.update();
+		}
+		
+		g.resetGraph();
+		tree.resetGraph();
+		g.drawGraph();
 
 		System.out.println("Breadth first traversal");
-		Node[] breadth = g.breadthFirstTraversal(g.getNode("0"));
+		Node[] breadth = g.breadthFirstDraw(g.getNode("0"));
 		for(int i=0;i<breadth.length-1;i++){
 			System.out.print(breadth[i].getName()+", ");
 		}
@@ -81,7 +105,7 @@ public class LectureTraversal
 		System.out.println();
 		
 		System.out.println("Is graph strongly connected? "+g.stronglyConnected());
-
+		
 		
 	}
 }

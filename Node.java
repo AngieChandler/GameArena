@@ -10,6 +10,9 @@ public class Node
 	private Ball drawnNode;
 	private Text label;
 	private boolean visited = false;
+	
+	//used for dijkstra
+	private int distance;
 
 	/** constructor - initialise node - including making the instance of Ball to be used on the GameArena
 	* @param x int x position
@@ -99,6 +102,13 @@ public class Node
 		return visited;
 	}
 	
+	
+	public int getDistance(){
+		return distance;
+	}
+	public void setDistance(int distance){
+		this.distance = distance;
+	}
 
 	/** add an arc to the node's outArc array
 	* @param arc the new Arc

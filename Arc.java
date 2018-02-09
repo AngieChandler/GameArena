@@ -84,6 +84,9 @@ public class Arc
 	public Node getEndNode(){
 		return endNode;
 	}
+	public int getWeight(){
+		return weight;
+	}
 	
 	/** get method
 	* @return line associated with this arc on the GameArena
