@@ -10,7 +10,7 @@ public class Graph
 	private GameArena arena;
 	
 	//used for building alternative graphs and showing traversals
-	private Graph tree;
+	private Graph tree,path;
 	private Ball traverse;
 
 	/** constructor - initialise arrays to empty (so that there are never any empty values)
@@ -50,6 +50,13 @@ public class Graph
 		}
 		return null;
 	}
+	public Arc getArc(String node1,String node2){
+		for(int i=0;i<arcs.length;i++){
+			if(arcs[i].getStartNode().getName().equals(node1) && arcs[i].getEndNode().getName().equals(node2))
+				return arcs[i];
+		}
+		return null;
+	}
 	
 	public Node[] getNodes(){
 		return nodes;
@@ -84,6 +91,7 @@ public class Graph
 		}
 		arcs[oldArc.length] = arc;
 	}
+	
 	
 	/** calculate the graph's density
 	* @return density as a double
@@ -371,17 +379,33 @@ public class Graph
 		Arc[] outArcs;
 		boolean endInTree = false;
 		int k=0;
+		int i;
 		
 		while(!endInTree){
 			//(re)generate fringe using new element of tree
-			int i = treeSize-1;
+			System.out.print("tree: ");
+			for(int m=0;m<treeSize;m++){
+				System.out.print(tree[m].getName()+" ");
+			}
+			System.out.println();
+			
+			i = treeSize-1;
+			System.out.println("new tree node: "+tree[i].getName());
 			outArcs = tree[i].getOutArcs();
+			
+			//go through the arcs coming out of new tree node
 			for(int j=0;j<outArcs.length;j++){
 				inFringe = false;
 				k=0;
+				System.out.println("Outarc "+outArcs[j].getEndNode().getName());
+				
+				//if this isn't visited (in tree)
 				if(!outArcs[j].getEndNode().isVisited()){
+					
+					//look to see if it's already in fringe
 					while(!inFringe && k<fringeSize)
 					{	
+						//if in fringe, check distance still correct
 						if(fringe[k].getName().equals(outArcs[j].getEndNode().getName())){
 							inFringe = true;
 							if(fringe[k].getDistance()>(outArcs[j].getWeight()+tree[i].getDistance()))
@@ -389,6 +413,7 @@ public class Graph
 						}
 						k++;	
 					}
+					//if not in fringe, add it
 					if(!inFringe)
 					{
 						fringe[fringeSize] = outArcs[j].getEndNode();
@@ -397,21 +422,25 @@ public class Graph
 					}
 				}
 			
-				//choose one from fringe
-				int position = 0;
-				int distance = fringe[position].getDistance();
-				for(int l=1;l<fringeSize-1;l++){
-					if(fringe[l].getDistance()<distance){
-						position = l;
-						distance = fringe[l].getDistance();
-					}
-				}
-				tree[treeSize] = fringe[position];
-				tree[treeSize].setVisited();
-				treeSize++;
-				fringe[position] = fringe[fringeSize-1];
-				fringeSize--;			
 			}
+
+			//choose one from fringe
+			int position = 0;
+			int distance = fringe[position].getDistance();
+			System.out.print("fringe: ");
+			for(int l=0;l<fringeSize;l++){
+				if(fringe[l].getDistance()<distance){
+					position = l;
+					distance = fringe[l].getDistance();
+				}
+				System.out.print(fringe[l].getName()+"("+fringe[l].getDistance()+") ");
+			}
+			System.out.println();
+			tree[treeSize] = fringe[position];
+			tree[treeSize].setVisited();
+			treeSize++;
+			fringe[position] = fringe[fringeSize-1];
+			fringeSize--;			
 			
 			//check end not in tree
 			if(tree[treeSize-1].getName().equals(endNode.getName()))
@@ -578,5 +607,247 @@ public class Graph
 		return order;
 	}
 	
+	public Node[] dijkstraDraw(Node startNode, Node endNode, boolean addInFringe, int time)
+	{
+		Node[] tree = new Node[nodes.length];
+		Node[] fringe = new Node[nodes.length];
+		
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+		path = new Graph(arena);
+		
+		int treeSize = 0;
+		int fringeSize = 0;
+		
+		tree[0] = startNode;
+		
+		path.addNode(startNode);
+		arena.addBall(startNode.getDrawnNode());
+		arena.addText(startNode.getLabel());
+		arena.update();
+		graphWait(time);
+		
+		treeSize++;
+		
+		boolean inFringe = false;
+		Arc[] outArcs;
+		boolean endInTree = false;
+		int k=0;
+		int i;
+		
+		while(!endInTree){
+			//(re)generate fringe using new element of tree
+			System.out.print("tree: ");
+			for(int m=0;m<treeSize;m++){
+				System.out.print(tree[m].getName()+" ");
+			}
+			System.out.println();
+			
+			i = treeSize-1;
+			System.out.println("new tree node: "+tree[i].getName());
+			outArcs = tree[i].getOutArcs();
+			
+			//go through the arcs coming out of new tree node
+			for(int j=0;j<outArcs.length;j++){
+				inFringe = false;
+				k=0;
+				System.out.println("Outarc "+outArcs[j].getEndNode().getName());
 
+				path.addArc(outArcs[j]);
+				arena.addLine(outArcs[j].getLine());
+				arena.update();
+				graphWait(time);
+				
+				//if this isn't visited (in tree)
+				if(!outArcs[j].getEndNode().isVisited()){
+					
+					//look to see if it's already in fringe
+					while(!inFringe && k<fringeSize)
+					{	
+						//if in fringe, check distance still correct
+						if(fringe[k].getName().equals(outArcs[j].getEndNode().getName())){
+							inFringe = true;
+							if(fringe[k].getDistance()>(outArcs[j].getWeight()+tree[i].getDistance()))
+								fringe[k].setDistance(outArcs[j].getWeight());
+						}
+						k++;	
+					}
+					//if not in fringe, add it
+					if(!inFringe)
+					{
+						fringe[fringeSize] = outArcs[j].getEndNode();
+						fringe[fringeSize].setDistance(outArcs[j].getWeight()+tree[i].getDistance());
+						fringeSize++;
+					
+						if(addInFringe){
+							path.addNode(fringe[fringeSize-1]);
+							arena.addBall(fringe[fringeSize-1].getDrawnNode());
+							arena.addText(fringe[fringeSize-1].getLabel());
+							arena.update();
+							graphWait(time);
+						}
+					}
+				}
+			
+			}
+
+			//choose one from fringe
+			int position = 0;
+			int distance = fringe[position].getDistance();
+			System.out.print("fringe: ");
+			for(int l=0;l<fringeSize;l++){
+				if(fringe[l].getDistance()<distance){
+					position = l;
+					distance = fringe[l].getDistance();
+				}
+				System.out.print(fringe[l].getName()+"("+fringe[l].getDistance()+") ");
+			}
+			System.out.println();
+			tree[treeSize] = fringe[position];
+			tree[treeSize].setVisited();
+			treeSize++;
+			fringe[position] = fringe[fringeSize-1];
+			fringeSize--;			
+			
+			if(!addInFringe){
+				path.addNode(tree[treeSize-1]);
+				arena.addBall(tree[treeSize-1].getDrawnNode());
+				arena.addText(tree[treeSize-1].getLabel());				
+				arena.update();
+				graphWait(time);				
+			}
+			
+			//check end not in tree
+			if(tree[treeSize-1].getName().equals(endNode.getName()))
+				endInTree = true;
+		}
+			
+		return tree;
+	}
+
+	public Node[] dijkstraDrawArcs(Node startNode,Node endNode,int time)
+	{
+		Node[] tree = new Node[nodes.length];
+		SpecialNode[] fringe = new SpecialNode[nodes.length];
+		Arc arc;
+		
+		for(int i=0;i<nodes.length;i++){
+			nodes[i].resetVisited();
+		}
+		path = new Graph(arena);
+		
+		int treeSize = 0;
+		int fringeSize = 0;
+		
+		tree[0] = startNode;
+		
+		path.addNode(startNode);
+		arena.addBall(startNode.getDrawnNode());
+		arena.addText(startNode.getLabel());
+		arena.update();
+		graphWait(time);
+		
+		treeSize++;
+		
+		boolean inFringe = false;
+		Arc[] outArcs;
+		boolean endInTree = false;
+		int k=0;
+		int i;
+		
+		while(!endInTree){
+			//(re)generate fringe using new element of tree
+			System.out.print("tree: ");
+			for(int m=0;m<treeSize;m++){
+				System.out.print(tree[m].getName()+" ");
+			}
+			System.out.println();
+			
+			i = treeSize-1;
+			System.out.println("new tree node: "+tree[i].getName());
+			outArcs = tree[i].getOutArcs();
+			
+			//go through the arcs coming out of new tree node
+			for(int j=0;j<outArcs.length;j++){
+				inFringe = false;
+				k=0;
+				System.out.println("Outarc "+outArcs[j].getEndNode().getName());
+
+				path.addArc(outArcs[j]);
+				arena.addLine(outArcs[j].getLine());
+				arena.update();
+				graphWait(time);
+				
+				//if this isn't visited (in tree)
+				if(!outArcs[j].getEndNode().isVisited()){
+					
+					//look to see if it's already in fringe
+					while(!inFringe && k<fringeSize)
+					{	
+						//if in fringe, check distance still correct
+						if(fringe[k].getName().equals(outArcs[j].getEndNode().getName())){
+							inFringe = true;
+							if(fringe[k].getDistance()>(outArcs[j].getWeight()+tree[i].getDistance()))
+								fringe[k].setDistance(outArcs[j].getWeight());
+						}
+						k++;	
+					}
+					//if not in fringe, add it
+					if(!inFringe)
+					{
+						fringe[fringeSize] = new SpecialNode(outArcs[j].getEndNode(),outArcs[j]);
+						fringe[fringeSize].setDistance(outArcs[j].getWeight()+tree[i].getDistance());
+						fringeSize++;
+					
+						path.addNode(fringe[fringeSize-1].getNode());
+						arena.addBall(fringe[fringeSize-1].getDrawnNode());
+						arena.addText(fringe[fringeSize-1].getLabel());
+						arena.update();
+						graphWait(time);
+					}
+				}
+			
+			}
+
+			//choose one from fringe
+			int position = 0;
+			int distance = fringe[position].getDistance();
+			System.out.print("fringe: ");
+			for(int l=0;l<fringeSize;l++){
+				if(fringe[l].getDistance()<distance){
+					position = l;
+					distance = fringe[l].getDistance();
+				}
+				System.out.print(fringe[l].getName()+"("+fringe[l].getDistance()+") ");
+			}
+			System.out.println();
+			tree[treeSize] = fringe[position].getNode();
+			arc = fringe[position].getArc();
+			arc.setTempLineColour("WHITE");
+			arena.update();
+
+			tree[treeSize].setVisited();
+			treeSize++;
+			fringe[position] = fringe[fringeSize-1];
+			fringeSize--;			
+						
+			//check end not in tree
+			if(tree[treeSize-1].getName().equals(endNode.getName()))
+				endInTree = true;
+		}
+		
+		graphWait(5000);
+		for(int q = 0;q < arcs.length; q++){
+			if(!arcs[q].getLine().getColour().equals("WHITE"))
+				arcs[q].setTempLineColour("BLACK");
+		}
+		drawGraph();
+		arena.update();
+			
+		return tree;
+		
+	}
+	
+	
 }

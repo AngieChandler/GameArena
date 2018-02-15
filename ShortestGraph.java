@@ -16,13 +16,13 @@ public class ShortestGraph
 		g.addNode(node);
 		node = new Node(400,300,30,"GREEN","I");
 		g.addNode(node);
-		node = new Node(600,300,30,"LIGHTBLUE","H");
+		node = new Node(600,300,30,"ROYALBLUE","H");
 		g.addNode(node);
 		node = new Node(800,300,30,"DARKBLUE","C");
 		g.addNode(node);
 		node = new Node(400,500,30,"PURPLE","E");
 		g.addNode(node);
-		node = new Node(600,500,30,"PINK","D");
+		node = new Node(600,500,30,"HOTPINK","D");
 		g.addNode(node);
 		node = new Node(500,200,30,"BROWN","G");
 		g.addNode(node);
@@ -68,8 +68,18 @@ public class ShortestGraph
 		arena.update();
 		g.display();
 		
-		Node[] path = g.dijkstra(g.getNode("A"),g.getNode("H"));
-		System.out.println("Shortest path");
+		boolean space = false;
+		while(!space){
+			if(arena.spacePressed())
+				space = true;
+			arena.update();
+		}
+		
+		g.resetGraph();
+		arena.update();
+		
+		Node[] path = g.dijkstraDrawArcs(g.getNode("A"),g.getNode("F"),2000);
+		System.out.println("Nodes added for shortest path");
 		for(int i=0;i<path.length;i++){
 			if(path[i]!=null)
 				System.out.print(path[i].getName()+", ");

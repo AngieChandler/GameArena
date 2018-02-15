@@ -95,6 +95,11 @@ public class Arc
 		return line;
 	}
 	
+	//changes line colour for now, but doesn't store in arc (so can be reset)
+	public void setTempLineColour(String colour){
+		line.setColour(colour);
+	}
+	
 	/** get method
 	* @return array of two Balls that represent a self arc
 	*/

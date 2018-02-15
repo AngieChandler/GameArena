@@ -9,10 +9,10 @@ public class Driver
 	
 		//lecture slides' model for traversal
 		//new LectureTraversal();
-		new LectureDraw();
+		//new LectureDraw();
 		
 		//lecture slides Dijkstra
-		//new ShortestGraph();
+		new ShortestGraph();
 
 	
 	}

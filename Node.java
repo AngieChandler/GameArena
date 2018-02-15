@@ -102,7 +102,6 @@ public class Node
 		return visited;
 	}
 	
-	
 	public int getDistance(){
 		return distance;
 	}
