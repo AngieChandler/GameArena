@@ -12,8 +12,12 @@ public class Driver
 		//new LectureDraw();
 		
 		//lecture slides Dijkstra
-		new ShortestGraph();
+		//new ShortestGraph();
 
+		//adjacency matrix
+		//new Adjacency();
 	
+		//TreeCellEditor
+		new LectureTree();
 	}
 }
