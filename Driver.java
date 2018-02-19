@@ -15,9 +15,9 @@ public class Driver
 		//new ShortestGraph();
 
 		//adjacency matrix
-		//new Adjacency();
+		new Adjacency();
 	
 		//TreeCellEditor
-		new LectureTree();
+		//new LectureTree();
 	}
 }
